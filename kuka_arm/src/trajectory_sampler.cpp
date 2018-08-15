@@ -177,9 +177,9 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
     // define plan object which will hold the planned trajectory
     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
-    bool success = move_group.plan(my_plan);
+    moveit::planning_interface::MoveItErrorCode success = move_group.plan(my_plan);
     ROS_INFO("Visualizing plan to target: %s",
-             success ? "SUCCEEDED" : "FAILED");
+             success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
 
     // Visualize the plan
     visual_tools.publishAxisLabeled(target_pose, "target_pose");
@@ -223,7 +223,7 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
       // command the robot to execute the created plan
       success = move_group.execute(my_plan);
       ROS_INFO("Moving to pick location: %s",
-               success ? "SUCCEEDED" : "FAILED");
+               success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
     }
 
     else
@@ -288,8 +288,8 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
         }
 
         move_group.setJointValueTarget(robot_joint_positions);
-        bool worked = move_group.move();
-        ROS_INFO("Robot actuation: %s", worked ? "SUCCEEDED" : "FAILED");
+        moveit::planning_interface::MoveItErrorCode worked = move_group.move();
+        ROS_INFO("Robot actuation: %s", worked == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
       }
     }
 
@@ -312,7 +312,7 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
     move_group.setPoseTarget(target_reach);
     success = move_group.move();
     ROS_INFO("Target reach: %s",
-             success ? "SUCCEEDED" : "FAILED");
+             success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
 
     visual_tools.prompt("next step");
 
@@ -339,7 +339,7 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
     move_group.setPoseTarget(target_pose);
     success = move_group.move();
     ROS_INFO("Target retrieval: %s",
-             success ? "SUCCEEDED" : "FAILED");
+             success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
 
     visual_tools.prompt("next step");
 
@@ -351,7 +351,7 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
 
     success = move_group.plan(my_plan);
     ROS_INFO("Visualizing plan to drop location: %s",
-             success ? "SUCCEEDED" : "FAILED");
+             success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
 
     // Visualize the plan
     visual_tools.publishAxisLabeled(bin_pose, "drop_pose");
@@ -375,7 +375,7 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
       // command the robot to execute the created plan
       success = move_group.execute(my_plan);
       ROS_INFO("Moving to drop location: %s",
-               success ? "SUCCEEDED" : "FAILED");
+               success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
     }
 
     /*
@@ -450,13 +450,13 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
         }
 
         move_group.setJointValueTarget(robot_joint_positions);
-        bool worked = move_group.move();
-        ROS_INFO("Robot actuation: %s", worked ? "SUCCEEDED" : "FAILED");
+        moveit::planning_interface::MoveItErrorCode worked = move_group.move();
+        ROS_INFO("Robot actuation: %s", worked == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
       }
     }
 
     ROS_INFO("Moving to drop location: %s",
-             success ? "SUCCEEDED" : "FAILED");
+             success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
 
     // Display current state
     visual_tools.publishText(text_pose, "Reached drop-off location",
@@ -496,7 +496,7 @@ TrajectorySampler::TrajectorySampler(ros::NodeHandle nh)
 
     move_group.setJointValueTarget(robot_joint_positions);
     success = move_group.move();
-    ROS_INFO("Robot motion to Idle state: %s", success ? "SUCCEEDED" : "FAILED");
+    ROS_INFO("Robot motion to Idle state: %s", success == moveit_msgs::MoveItErrorCodes::SUCCESS ? "SUCCEEDED" : "FAILED");
 
     // Spawn another target
     system("rosrun kuka_arm target_spawn.py");
@@ -541,8 +541,8 @@ bool TrajectorySampler::OperateGripper(const bool &close_gripper)
   eef_group.setJointValueTarget(gripper_joint_positions);
   ros::Duration(1.5).sleep();
 
-  bool success = eef_group.move();
-  return success;
+  moveit::planning_interface::MoveItErrorCode success = eef_group.move();
+  return success == moveit_msgs::MoveItErrorCodes::SUCCESS;
 }
 
 bool TrajectorySampler::OpenGripper()
